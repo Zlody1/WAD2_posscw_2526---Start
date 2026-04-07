@@ -19,5 +19,8 @@ export const SessionModel = {
     if (next < 0) throw new Error('Booked count cannot be negative');
     await sessionsDb.update({ _id: id }, { $set: { bookedCount: next } });
     return this.findById(id);
-  }
+  },
+  async delete(id) {
+    return sessionsDb.remove({ _id: id });
+  },
 };

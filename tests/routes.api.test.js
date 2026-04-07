@@ -79,10 +79,12 @@ describe("JSON API routes", () => {
 
   // BOOKINGS
   test("POST /api/bookings/course creates a course booking (CONFIRMED or WAITLISTED)", async () => {
-    const res = await request(app).post("/api/bookings/course").send({
-      userId: student._id,
-      courseId: data.course._id,
-    });
+    const res = await request(app)
+      .post("/api/bookings/course")
+      .set('Cookie', `userId=${student._id}`)
+      .send({
+        courseId: data.course._id,
+      });
     expect(res.status).toBe(201);
     expect(res.body.booking).toBeDefined();
     expect(res.body.booking.type).toBe("COURSE");
@@ -90,10 +92,12 @@ describe("JSON API routes", () => {
   });
 
   test("POST /api/bookings/session creates a session booking (CONFIRMED or WAITLISTED)", async () => {
-    const res = await request(app).post("/api/bookings/session").send({
-      userId: student._id,
-      sessionId: data.sessions[0]._id,
-    });
+    const res = await request(app)
+      .post("/api/bookings/session")
+      .set('Cookie', `userId=${student._id}`)
+      .send({
+        sessionId: data.sessions[0]._id,
+      });
     expect(res.status).toBe(201);
     expect(res.body.booking).toBeDefined();
     expect(res.body.booking.type).toBe("SESSION");
@@ -102,14 +106,18 @@ describe("JSON API routes", () => {
 
   test("DELETE /api/bookings/:id cancels a booking", async () => {
     // Create, then cancel
-    const create = await request(app).post("/api/bookings/session").send({
-      userId: student._id,
-      sessionId: data.sessions[1]._id,
-    });
+    const create = await request(app)
+      .post("/api/bookings/session")
+      .set('Cookie', `userId=${student._id}`)
+      .send({
+        sessionId: data.sessions[1]._id,
+      });
     expect(create.status).toBe(201);
     const bookingId = create.body.booking._id;
 
-    const del = await request(app).delete(`/api/bookings/${bookingId}`);
+    const del = await request(app)
+      .delete(`/api/bookings/${bookingId}`)
+      .set('Cookie', `userId=${student._id}`);
     expect(del.status).toBe(200);
     expect(del.body.booking.status).toBe("CANCELLED");
   });

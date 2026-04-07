@@ -8,7 +8,8 @@ import { SessionModel } from "../models/sessionModel.js";
 
 export const bookCourse = async (req, res) => {
   try {
-    const { userId, courseId } = req.body;
+    const { courseId } = req.body;
+    const userId = req.user._id;
     const booking = await bookCourseForUser(userId, courseId);
     res.status(201).json({ booking });
   } catch (err) {
@@ -19,7 +20,8 @@ export const bookCourse = async (req, res) => {
 
 export const bookSession = async (req, res) => {
   try {
-    const { userId, sessionId } = req.body;
+    const { sessionId } = req.body;
+    const userId = req.user._id;
     const booking = await bookSessionForUser(userId, sessionId);
     res.status(201).json({ booking });
   } catch (err) {
@@ -35,6 +37,7 @@ export const cancelBooking = async (req, res) => {
     const { bookingId } = req.params;
     const booking = await BookingModel.findById(bookingId);
     if (!booking) return res.status(404).json({ error: "Booking not found" });
+    if (booking.userId !== req.user._id) return res.status(403).json({ error: "Not authorized to cancel this booking" });
     if (booking.status === "CANCELLED") return res.json({ booking });
 
     if (booking.status === "CONFIRMED") {

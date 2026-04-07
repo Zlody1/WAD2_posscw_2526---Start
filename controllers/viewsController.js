@@ -74,6 +74,7 @@ export const courseDetailPage = async (req, res, next) => {
       capacity: s.capacity,
       booked: s.bookedCount ?? 0,
       remaining: Math.max(0, (s.capacity ?? 0) - (s.bookedCount ?? 0)),
+      price: s.price,
     }));
 
     res.render("course", {
@@ -88,7 +89,6 @@ export const courseDetailPage = async (req, res, next) => {
         startDate: course.startDate ? fmtDateOnly(course.startDate) : "",
         endDate: course.endDate ? fmtDateOnly(course.endDate) : "",
         description: course.description,
-        price: course.price,
         location: course.location,
       },
       sessions: rows,
@@ -109,14 +109,19 @@ export const courseBookingPage = async (req, res, next) => {
         .render("error", { title: "Not found", message: "Course not found", year: new Date().getFullYear() });
 
     const sessions = await SessionModel.listByCourse(courseId);
-    const rows = sessions.map((s) => ({
-      id: s._id,
-      start: fmtDate(s.startDateTime),
-      end: fmtDate(s.endDateTime),
-      capacity: s.capacity,
-      booked: s.bookedCount ?? 0,
-      remaining: Math.max(0, (s.capacity ?? 0) - (s.bookedCount ?? 0)),
-    }));
+    const rows = sessions.map((s) => {
+      const remaining = Math.max(0, (s.capacity ?? 0) - (s.bookedCount ?? 0));
+      return {
+        id: s._id,
+        start: fmtDate(s.startDateTime),
+        end: fmtDate(s.endDateTime),
+        capacity: s.capacity,
+        booked: s.bookedCount ?? 0,
+        remaining,
+        canBook: remaining > 0,
+        price: s.price,
+      };
+    });
 
     res.render("course_book", {
       title: `Book: ${course.title}`,
@@ -169,6 +174,7 @@ export const postBookCourse = async (req, res, next) => {
         capacity: s.capacity,
         booked: s.bookedCount ?? 0,
         remaining: Math.max(0, (s.capacity ?? 0) - (s.bookedCount ?? 0)),
+        price: s.price,
       }));
       
       return res.status(400).render("course_book", {
@@ -223,6 +229,10 @@ export const bookingConfirmationPage = async (req, res, next) => {
       return res
         .status(404)
         .render("error", { title: "Not found", message: "Booking not found", year: new Date().getFullYear() });
+    if (booking.userId !== req.user._id)
+      return res
+        .status(403)
+        .render("error", { title: "Access denied", message: "You can only view your own bookings", year: new Date().getFullYear() });
 
     res.render("booking_confirmation", {
       title: "Booking confirmation",
@@ -248,6 +258,10 @@ export const bookingDetailsPage = async (req, res, next) => {
       return res
         .status(404)
         .render("error", { title: "Not found", message: "Booking not found", year: new Date().getFullYear() });
+    if (booking.userId !== req.user._id)
+      return res
+        .status(403)
+        .render("error", { title: "Access denied", message: "You can only view your own bookings", year: new Date().getFullYear() });
 
     // Get session details if it's a course booking
     let sessionsList = [];
@@ -286,6 +300,10 @@ export const postCancelBooking = async (req, res, next) => {
       return res
         .status(404)
         .render("error", { title: "Not found", message: "Booking not found", year: new Date().getFullYear() });
+    if (booking.userId !== req.user._id)
+      return res
+        .status(403)
+        .render("error", { title: "Access denied", message: "You can only cancel your own bookings", year: new Date().getFullYear() });
 
     if (booking.status === "CANCELLED") {
       return res.render("error", {

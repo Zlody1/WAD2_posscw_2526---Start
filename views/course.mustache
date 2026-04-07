@@ -8,7 +8,6 @@
     Level: {{course.level}} • Type: {{course.type}} {{#course.allowDropIn}}• Drop-in available{{/course.allowDropIn}}
   </p>
   <p>{{course.description}}</p>
-  {{#course.price}}<p class="muted">Price: {{course.price}}</p>{{/course.price}}
   {{#course.location}}<p class="muted">Location: {{course.location}}</p>{{/course.location}}
   <p class="muted">Dates: {{course.startDate}} – {{course.endDate}}</p>
 
@@ -22,7 +21,7 @@
     <h2>Sessions</h2>
     <table class="table">
       <thead>
-        <tr><th>Start</th><th>End</th><th>Capacity</th><th>Booked</th><th>Remaining</th><th></th></tr>
+        <tr><th>Start</th><th>End</th><th>Capacity</th><th>Booked</th><th>Remaining</th><th>Price</th><th></th></tr>
       </thead>
       <tbody>
         {{#sessions}}
@@ -32,6 +31,7 @@
           <td>{{capacity}}</td>
           <td>{{booked}}</td>
           <td>{{remaining}}</td>
+          <td>{{#price}}{{price}}{{/price}}</td>
           <td>
             {{#../course.allowDropIn}}
             <form method="post" action="/sessions/{{id}}/book">

@@ -1,0 +1,107 @@
+{{> head}}
+{{> header}}
+
+<article>
+  <h1>Edit Course</h1>
+
+  {{#errors}}
+  <div class="alert error" role="alert" aria-live="assertive">
+    <ul>
+      {{#list}}
+      <li>{{.}}</li>
+      {{/list}}
+    </ul>
+  </div>
+  {{/errors}}
+
+  <form method="post" action="/organizer/courses/{{course.id}}">
+    <fieldset>
+      <legend>Course Details</legend>
+
+      <div class="field">
+        <label for="title">Course Title: *</label>
+        <input
+          type="text"
+          id="title"
+          name="title"
+          required
+          value="{{course.title}}"
+          placeholder="e.g., Hatha Yoga for Beginners"
+        />
+      </div>
+
+      <div class="field">
+        <label for="level">Level: *</label>
+        <select id="level" name="level" required>
+          <option value="">-- Select a level --</option>
+          <option value="beginner" {{#levelBeginner}}selected{{/levelBeginner}}>Beginner</option>
+          <option value="intermediate" {{#levelIntermediate}}selected{{/levelIntermediate}}>Intermediate</option>
+          <option value="advanced" {{#levelAdvanced}}selected{{/levelAdvanced}}>Advanced</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="type">Type: *</label>
+        <select id="type" name="type" required>
+          <option value="">-- Select a type --</option>
+          <option value="WEEKLY_BLOCK" {{#typeWeekly}}selected{{/typeWeekly}}>Weekly Block</option>
+          <option value="WEEKEND_WORKSHOP" {{#typeWorkshop}}selected{{/typeWorkshop}}>Weekend Workshop</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="startDate">Start Date:</label>
+        <input
+          type="date"
+          id="startDate"
+          name="startDate"
+          value="{{course.startDate}}"
+        />
+      </div>
+
+      <div class="field">
+        <label for="endDate">End Date:</label>
+        <input
+          type="date"
+          id="endDate"
+          name="endDate"
+          value="{{course.endDate}}"
+        />
+      </div>
+
+      <div class="field">
+        <label for="location">Location (optional):</label>
+        <input
+          type="text"
+          id="location"
+          name="location"
+          value="{{course.location}}"
+          placeholder="e.g., Studio A, 123 Main St"
+        />
+      </div>
+
+      <div class="field">
+        <label for="description">Description: *</label>
+        <textarea
+          id="description"
+          name="description"
+          rows="4"
+          required
+          placeholder="Describe your course..."
+        >{{course.description}}</textarea>
+      </div>
+
+      <div class="field checkbox">
+        <input type="checkbox" id="allowDropIn" name="allowDropIn" {{#course.allowDropIn}}checked{{/course.allowDropIn}} />
+        <label for="allowDropIn">Allow drop-in sessions</label>
+      </div>
+    </fieldset>
+
+    <div class="actions">
+      <button type="submit" class="btn primary">Update Course</button>
+      <a href="/organizer/courses/{{course.id}}" class="btn">Cancel</a>
+    </div>
+  </form>
+</article>
+
+{{> footer}}

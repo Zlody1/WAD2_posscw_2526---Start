@@ -4,11 +4,13 @@ import { resetDb, seedMinimal } from "./helpers.js";
 
 describe("SSR view routes", () => {
   let data;
+  let student;
 
   beforeAll(async () => {
     process.env.NODE_ENV = "test";
     await resetDb();
     data = await seedMinimal();
+    student = data.student; // Assuming seedMinimal returns student
   });
 
   test("GET / (home) renders HTML", async () => {
@@ -34,7 +36,9 @@ describe("SSR view routes", () => {
   });
 
   test("GET /courses/:id/book renders course booking form", async () => {
-    const res = await request(app).get(`/courses/${data.course._id}/book`);
+    const res = await request(app)
+      .get(`/courses/${data.course._id}/book`)
+      .set('Cookie', `userId=${student._id}`);
     expect(res.status).toBe(200);
     expect(res.headers["content-type"]).toMatch(/html/);
     expect(res.text).toMatch(/Confirm Course Booking|Book:/i);

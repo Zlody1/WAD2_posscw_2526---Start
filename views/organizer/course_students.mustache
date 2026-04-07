@@ -1,0 +1,52 @@
+{{> head}}
+<body>
+  {{> header}}
+
+  <div class="container">
+    <h1>{{title}}</h1>
+
+    <div class="course-info">
+      <h2>{{course.title}}</h2>
+      <a href="/organizer/courses/{{course.id}}/bookings" class="btn btn-secondary">View Bookings</a>
+      <a href="/organizer/dashboard" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+
+    <div class="students-section">
+      <h3>Enrolled Students ({{studentCount}})</h3>
+
+      {{#hasStudents}}
+      <div class="students-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Booking Type</th>
+              <th>Status</th>
+              <th>Enrolled Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#students}}
+            <tr>
+              <td>{{userName}}</td>
+              <td>{{userEmail}}</td>
+              <td>{{type}}</td>
+              <td>{{status}}</td>
+              <td>{{createdAt}}</td>
+            </tr>
+            {{/students}}
+          </tbody>
+        </table>
+      </div>
+      {{/hasStudents}}
+
+      {{^hasStudents}}
+      <p class="no-students">No students enrolled in this course yet.</p>
+      {{/hasStudents}}
+    </div>
+  </div>
+
+  {{> footer}}
+</body>
+</html>

@@ -49,20 +49,40 @@
     </fieldset>
 
     <fieldset>
-      <legend>Booking summary</legend>
-      <p>This booking reserves a seat across <strong>{{sessionsCount}}</strong> sessions:</p>
-      <ul class="muted">
-        {{#sessions}}
-        <li>{{start}} ({{remaining}} places left)</li>
-        {{/sessions}}
-      </ul>
+      <legend>Booking options</legend>
+      <p>You can book the entire course or individual sessions:</p>
+      
+      <div class="booking-options">
+        <div class="option">
+          <h3>Book Entire Course</h3>
+          <p>Reserve a seat across all <strong>{{sessionsCount}}</strong> sessions:</p>
+          <ul class="muted">
+            {{#sessions}}
+            <li>{{start}} ({{remaining}} places left)</li>
+            {{/sessions}}
+          </ul>
+          <button class="btn primary" type="submit">Confirm Course Booking</button>
+        </div>
+        
+        <div class="option">
+          <h3>Book Individual Sessions</h3>
+          <p>Select specific sessions to book:</p>
+          {{#sessions}}
+          <div class="session-item">
+            <span>{{start}} ({{remaining}} places left)</span>
+            <form method="post" action="/sessions/{{id}}/book" style="display: inline;">
+              <button class="btn secondary" type="submit" {{^canBook}}disabled{{/canBook}}>Book This Session</button>
+            </form>
+          </div>
+          {{/sessions}}
+        </div>
+      </div>
     </fieldset>
-
-    <div class="actions">
-      <button class="btn primary" type="submit">Confirm Course Booking</button>
-      <a href="/courses/{{course.id}}" class="btn">Cancel</a>
-    </div>
   </form>
+
+  <div class="actions">
+    <a href="/courses/{{course.id}}" class="btn">Cancel</a>
+  </div>
 </article>
 
 {{> footer}}

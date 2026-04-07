@@ -1,0 +1,53 @@
+{{> head}}
+{{> header}}
+
+<article>
+  <h1>Bookings for: {{course.title}}</h1>
+
+  <section>
+    <h2>All Bookings</h2>
+    <p>
+      <a href="/organizer/courses/{{course.id}}" class="btn">Back to Course</a>
+      <a href="/organizer/dashboard" class="btn">Dashboard</a>
+    </p>
+
+    {{#bookings}}
+    {{#@first}}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Email</th>
+          <th>Type</th>
+          <th>Status</th>
+          <th>Booked At</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+    {{/@first}}
+        <tr>
+          <td>{{userName}}</td>
+          <td>{{userEmail}}</td>
+          <td>{{type}}</td>
+          <td>{{status}}</td>
+          <td>{{createdAt}}</td>
+          <td>
+            <form method="post" action="/organizer/courses/{{../course.id}}/bookings/{{id}}/remove" style="display: inline;" onsubmit="return confirm('Are you sure you want to remove this user from the course?')">
+              <button type="submit" class="btn danger">Remove</button>
+            </form>
+          </td>
+        </tr>
+    {{#@last}}
+      </tbody>
+    </table>
+    {{/@last}}
+    {{/bookings}}
+
+    {{^bookings}}
+    <p>No bookings found for this course.</p>
+    {{/bookings}}
+  </section>
+</article>
+
+{{> footer}}

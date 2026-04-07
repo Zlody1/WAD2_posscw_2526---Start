@@ -1,38 +1,31 @@
 // seed/seed.js
-import {
-  initDb,
-  usersDb,
-  coursesDb,
-  sessionsDb,
-  bookingsDb,
-} from "../models/_db.js";
-import { CourseModel } from "../models/courseModel.js";
-import { SessionModel } from "../models/sessionModel.js";
-import { UserModel } from "../models/userModel.js";
+import Datastore from "nedb-promises";
 
 const iso = (d) => new Date(d).toISOString();
 
+// Use in-memory databases for seeding to avoid Windows/OneDrive file lock issues
+const usersDb = Datastore.create();
+const coursesDb = Datastore.create();
+const sessionsDb = Datastore.create();
+const bookingsDb = Datastore.create();
+
 async function wipeAll() {
-  // Remove all documents to guarantee a clean seed
+  // Clear in-memory databases
   await Promise.all([
     usersDb.remove({}, { multi: true }),
     coursesDb.remove({}, { multi: true }),
     sessionsDb.remove({}, { multi: true }),
     bookingsDb.remove({}, { multi: true }),
   ]);
-  // Compact files so you’re not looking at stale data on disk
-  await Promise.all([
-    usersDb.persistence.compactDatafile(),
-    coursesDb.persistence.compactDatafile(),
-    sessionsDb.persistence.compactDatafile(),
-    bookingsDb.persistence.compactDatafile(),
-  ]);
+  // Ensure indexes
+  await usersDb.ensureIndex({ fieldName: "email", unique: true });
+  await sessionsDb.ensureIndex({ fieldName: "courseId" });
 }
 
 async function ensureDemoStudent() {
-  let student = await UserModel.findByEmail("student@example.com");
+  let student = await usersDb.findOne({ email: "student@example.com" });
   if (!student) {
-    student = await UserModel.create({
+    student = await usersDb.insert({
       name: "Demo Student",
       email: "student@example.com",
       role: "student",
@@ -43,9 +36,9 @@ async function ensureDemoStudent() {
 }
 
 async function ensureOrganizer() {
-  let organizer = await UserModel.findByEmail("organizer@yoga.local");
+  let organizer = await usersDb.findOne({ email: "organizer@yoga.local" });
   if (!organizer) {
-    organizer = await UserModel.create({
+    organizer = await usersDb.insert({
       name: "Yoga Organizer",
       email: "organizer@yoga.local",
       role: "organizer",
@@ -55,23 +48,58 @@ async function ensureOrganizer() {
   return organizer;
 }
 
-async function createWeekendWorkshop() {
-  const instructor = await UserModel.create({
-    name: "Ava",
-    email: "ava@yoga.local",
-    role: "instructor",
-  });
-  const course = await CourseModel.create({
+async function createAdditionalStudents() {
+  const students = [
+    { name: "Alice Johnson", email: "alice@example.com", password: "password" },
+    { name: "Bob Smith", email: "bob@example.com", password: "password" },
+    { name: "Carol Davis", email: "carol@example.com", password: "password" },
+    { name: "David Wilson", email: "david@example.com", password: "password" },
+    { name: "Emma Brown", email: "emma@example.com", password: "password" },
+  ];
+
+  const createdStudents = [];
+  for (const studentData of students) {
+    const student = await usersDb.insert({
+      name: studentData.name,
+      email: studentData.email,
+      role: "student",
+      password: studentData.password,
+    });
+    createdStudents.push(student);
+  }
+  return createdStudents;
+}
+
+async function createAdditionalOrganizers() {
+  const organizers = [
+    { name: "James Organizer", email: "james@yoga.local", password: "password" },
+    { name: "Sarah Admin", email: "sarah@yoga.local", password: "admin456" },
+  ];
+
+  const createdOrganizers = [];
+  for (const organizerData of organizers) {
+    const organizer = await usersDb.insert({
+      name: organizerData.name,
+      email: organizerData.email,
+      role: "organizer",
+      password: organizerData.password,
+    });
+    createdOrganizers.push(organizer);
+  }
+  return createdOrganizers;
+}
+
+async function createWeekendWorkshop(organizer) {
+  const course = await coursesDb.insert({
     title: "Winter Mindfulness Workshop",
     level: "beginner",
     type: "WEEKEND_WORKSHOP",
     allowDropIn: false,
     startDate: "2026-01-10",
     endDate: "2026-01-11",
-    instructorId: instructor._id,
+    instructorId: organizer._id,
     sessionIds: [],
     description: "Two days of breath, posture alignment, and meditation.",
-    price: 120,
     location: "Studio A, 123 Wellness Street, City Center",
   });
 
@@ -80,38 +108,33 @@ async function createWeekendWorkshop() {
   for (let i = 0; i < 5; i++) {
     const start = new Date(base.getTime() + i * 2 * 60 * 60 * 1000); // every 2 hours
     const end = new Date(start.getTime() + 60 * 60 * 1000);
-    const s = await SessionModel.create({
+    const s = await sessionsDb.insert({
       courseId: course._id,
       startDateTime: iso(start),
       endDateTime: iso(end),
       capacity: 20,
       bookedCount: 0,
+      price: 25,
     });
     sessions.push(s);
   }
-  await CourseModel.update(course._id, {
-    sessionIds: sessions.map((s) => s._id),
+  await coursesDb.update({ _id: course._id }, {
+    $set: { sessionIds: sessions.map((s) => s._id) },
   });
-  return { course, sessions, instructor };
+  return { course, sessions };
 }
 
-async function createWeeklyBlock() {
-  const instructor = await UserModel.create({
-    name: "Ben",
-    email: "ben@yoga.local",
-    role: "instructor",
-  });
-  const course = await CourseModel.create({
+async function createWeeklyBlock(organizer) {
+  const course = await coursesDb.insert({
     title: "12‑Week Vinyasa Flow",
     level: "intermediate",
     type: "WEEKLY_BLOCK",
     allowDropIn: true,
     startDate: "2026-02-02",
     endDate: "2026-04-20",
-    instructorId: instructor._id,
+    instructorId: organizer._id,
     sessionIds: [],
     description: "Progressive sequences building strength and flexibility.",
-    price: 240,
     location: "Studio B, 456 Harmony Avenue, Wellness District",
   });
 
@@ -120,19 +143,54 @@ async function createWeeklyBlock() {
   for (let i = 0; i < 12; i++) {
     const start = new Date(first.getTime() + i * 7 * 24 * 60 * 60 * 1000);
     const end = new Date(start.getTime() + 75 * 60 * 1000);
-    const s = await SessionModel.create({
+    const s = await sessionsDb.insert({
       courseId: course._id,
       startDateTime: iso(start),
       endDateTime: iso(end),
       capacity: 18,
       bookedCount: 0,
+      price: 20,
     });
     sessions.push(s);
   }
-  await CourseModel.update(course._id, {
-    sessionIds: sessions.map((s) => s._id),
+  await coursesDb.update({ _id: course._id }, {
+    $set: { sessionIds: sessions.map((s) => s._id) },
   });
-  return { course, sessions, instructor };
+  return { course, sessions };
+}
+
+async function persistToDisk() {
+  // Get all data from in-memory databases
+  const [users, courses, sessions, bookings] = await Promise.all([
+    usersDb.find({}),
+    coursesDb.find({}),
+    sessionsDb.find({}),
+    bookingsDb.find({}),
+  ]);
+
+  // Import path and fs
+  const path = await import("path");
+  const fs = await import("fs/promises");
+  const { fileURLToPath } = await import("url");
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  const dbDir = path.join(__dirname, "../db");
+
+  // Ensure db directory exists
+  await fs.mkdir(dbDir, { recursive: true });
+
+  // Write data in NeDB format (one document per line)
+  const writeNeDBFormat = (docs, filename) => {
+    const lines = docs.map(doc => JSON.stringify(doc)).join('\n');
+    return fs.writeFile(path.join(dbDir, filename), lines + '\n');
+  };
+
+  await writeNeDBFormat(users, "users.db");
+  await writeNeDBFormat(courses, "courses.db");
+  await writeNeDBFormat(sessions, "sessions.db");
+  await writeNeDBFormat(bookings, "bookings.db");
+
+  console.log("Data persisted to disk successfully");
 }
 
 async function verifyAndReport() {
@@ -153,10 +211,7 @@ async function verifyAndReport() {
 }
 
 async function run() {
-  console.log("Initializing DB…");
-  await initDb();
-
-  console.log("Wiping existing data…");
+  console.log("Initializing in-memory DB…");
   await wipeAll();
 
   console.log("Creating demo student…");
@@ -165,16 +220,28 @@ async function run() {
   console.log("Creating organizer…");
   const organizer = await ensureOrganizer();
 
+  console.log("Creating additional students…");
+  const additionalStudents = await createAdditionalStudents();
+
+  console.log("Creating additional organizers…");
+  const additionalOrganizers = await createAdditionalOrganizers();
+
   console.log("Creating weekend workshop…");
-  const w = await createWeekendWorkshop();
+  const w = await createWeekendWorkshop(organizer);
 
   console.log("Creating weekly block…");
-  const b = await createWeeklyBlock();
+  const b = await createWeeklyBlock(organizer);
 
   await verifyAndReport();
 
+  console.log("Persisting to disk…");
+  await persistToDisk();
+
   console.log("\n✅ Seed complete.");
-  console.log("Student ID           :", student._id);
+  console.log("Demo Student ID      :", student._id);
+  console.log("Main Organizer ID    :", organizer._id);
+  console.log("Additional Students  :", additionalStudents.length);
+  console.log("Additional Organizers:", additionalOrganizers.length);
   console.log(
     "Workshop course ID   :",
     w.course._id,
