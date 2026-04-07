@@ -4,11 +4,9 @@
     <nav>
       <a href="/">Home</a>
       <a href="/courses">All Courses</a>
-      {{#user}}
-        {{#isOrganizer}}
-        <a href="/organizer/dashboard">Dashboard</a>
-        {{/isOrganizer}}
-      {{/user}}
+      {{#isOrganizer}}
+      <a href="/organizer/dashboard">Dashboard</a>
+      {{/isOrganizer}}
     </nav>
     {{#user}}
     <div class="user">

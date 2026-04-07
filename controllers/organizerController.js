@@ -52,7 +52,6 @@ export const organizerDashboard = async (req, res, next) => {
       year: new Date().getFullYear(),
       courses: courseCards,
       courseCount: courseCards.length,
-      organizer: req.user,
     });
   } catch (err) {
     next(err);
@@ -63,7 +62,7 @@ export const newCoursePage = (req, res) => {
   res.render("organizer/new_course", {
     title: "Create New Course",
     year: new Date().getFullYear(),
-    organizer: req.user,
+    
   });
 };
 
@@ -85,7 +84,7 @@ export const postCreateCourse = async (req, res, next) => {
       return res.render("organizer/new_course", {
         title: "Create New Course",
         year: new Date().getFullYear(),
-        organizer: req.user,
+        
         error: "Title, level, type, start date, and end date are required.",
         formData: req.body,
       });
@@ -136,7 +135,7 @@ export const courseDetailsOrganizerPage = async (req, res, next) => {
     res.render("organizer/course_details", {
       title: course.title,
       year: new Date().getFullYear(),
-      organizer: req.user,
+      
       course: {
         id: course._id,
         title: course.title,
@@ -172,7 +171,7 @@ export const newSessionPage = async (req, res, next) => {
     res.render("organizer/new_session", {
       title: "Add Session",
       year: new Date().getFullYear(),
-      organizer: req.user,
+      
       course: {
         id: course._id,
         title: course.title,
@@ -202,7 +201,7 @@ export const postCreateSession = async (req, res, next) => {
       return res.render("organizer/new_session", {
         title: "Add Session",
         year: new Date().getFullYear(),
-        organizer: req.user,
+        
         course: {
           id: course._id,
           title: course.title,
@@ -248,7 +247,7 @@ export const editCoursePage = async (req, res, next) => {
     res.render("organizer/edit_course", {
       title: "Edit Course",
       year: new Date().getFullYear(),
-      organizer: req.user,
+      
       course: {
         id: course._id,
         title: course.title,
@@ -305,7 +304,7 @@ export const postUpdateCourse = async (req, res, next) => {
       return res.render("organizer/edit_course", {
         title: "Edit Course",
         year: new Date().getFullYear(),
-        organizer: req.user,
+        
         course: { id: courseId, ...req.body },
         errors: { list: errors },
         levelBeginner: level === 'beginner',
@@ -378,11 +377,15 @@ export const usersManagementPage = async (req, res, next) => {
       role: user.role,
     }));
 
+    const errors = req.query.error === 'cannot_delete_self' ? { list: ["You cannot delete your own account."] } : null;
+
     res.render("organizer/users", {
       title: "User Management",
       year: new Date().getFullYear(),
-      organizer: req.user,
       users: userRows,
+      hasUsers: userRows.length > 0,
+      userCount: userRows.length,
+      errors,
     });
   } catch (err) {
     next(err);
@@ -427,7 +430,7 @@ export const postCreateUser = async (req, res, next) => {
       return res.render("organizer/users", {
         title: "User Management",
         year: new Date().getFullYear(),
-        organizer: req.user,
+        
         users: userRows,
         errors: { list: errors },
         formData: req.body,
@@ -494,7 +497,7 @@ export const postUpdateUser = async (req, res, next) => {
       return res.render("organizer/users", {
         title: "User Management",
         year: new Date().getFullYear(),
-        organizer: req.user,
+        
         users: userRows,
         errors: { list: errors },
         editUser: { id: userId, name, email, role },
@@ -530,11 +533,7 @@ export const postDeleteUser = async (req, res, next) => {
 
     // Prevent deleting yourself
     if (userId === req.user._id) {
-      return res.status(400).render("error", {
-        title: "Cannot delete",
-        message: "You cannot delete your own account.",
-        year: new Date().getFullYear(),
-      });
+      return res.redirect("/organizer/users?error=cannot_delete_self");
     }
 
     // Cancel all bookings for this user
@@ -589,7 +588,7 @@ export const courseBookingsPage = async (req, res, next) => {
     res.render("organizer/course_bookings", {
       title: `Bookings: ${course.title}`,
       year: new Date().getFullYear(),
-      organizer: req.user,
+      
       course: {
         id: course._id,
         title: course.title,
@@ -632,7 +631,7 @@ export const courseStudentsPage = async (req, res, next) => {
     res.render("organizer/course_students", {
       title: `Students: ${course.title}`,
       year: new Date().getFullYear(),
-      organizer: req.user,
+      
       course: {
         id: course._id,
         title: course.title,

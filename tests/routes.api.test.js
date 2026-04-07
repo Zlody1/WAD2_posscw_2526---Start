@@ -2,6 +2,7 @@ import request from "supertest";
 import { app } from "../index.js";
 import { resetDb, seedMinimal } from "./helpers.js";
 import { UserModel } from "../models/userModel.js";
+import { SessionModel } from "../models/sessionModel.js";
 
 describe("JSON API routes", () => {
   let data;
@@ -98,19 +99,27 @@ describe("JSON API routes", () => {
       .send({
         sessionId: data.sessions[0]._id,
       });
-    expect(res.status).toBe(201);
-    expect(res.body.booking).toBeDefined();
-    expect(res.body.booking.type).toBe("SESSION");
-    expect(["CONFIRMED", "WAITLISTED"]).toContain(res.body.booking.status);
+    // Should fail because student already booked the course containing this session
+    expect(res.status).toBe(400);
+    expect(res.body.error).toContain("already enrolled");
   });
 
   test("DELETE /api/bookings/:id cancels a booking", async () => {
-    // Create, then cancel
+    // Create a standalone session not part of any course for testing
+    const standaloneSession = await SessionModel.create({
+      courseId: null, // Standalone session
+      startDateTime: new Date("2026-03-01T18:30:00").toISOString(),
+      endDateTime: new Date("2026-03-01T19:45:00").toISOString(),
+      capacity: 18,
+      bookedCount: 0,
+    });
+
+    // Create session booking
     const create = await request(app)
       .post("/api/bookings/session")
       .set('Cookie', `userId=${student._id}`)
       .send({
-        sessionId: data.sessions[1]._id,
+        sessionId: standaloneSession._id,
       });
     expect(create.status).toBe(201);
     const bookingId = create.body.booking._id;

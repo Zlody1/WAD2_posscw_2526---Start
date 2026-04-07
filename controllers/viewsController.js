@@ -49,8 +49,7 @@ export const homePage = async (req, res, next) => {
     res.render("home", { 
       title: "Yoga Courses", 
       year: new Date().getFullYear(), 
-      courses: cards,
-      isOrganizer: req.user?.role === "organizer"
+      courses: cards
     });
   } catch (err) {
     next(err);
@@ -91,8 +90,7 @@ export const courseDetailPage = async (req, res, next) => {
         description: course.description,
         location: course.location,
       },
-      sessions: rows,
-      isOrganizer: req.user?.role === "organizer"
+      sessions: rows
     });
   } catch (err) {
     next(err);

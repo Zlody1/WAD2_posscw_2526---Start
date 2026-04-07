@@ -4,26 +4,46 @@
 
 <section>
   <h1>Find Courses</h1>
-  <form method="get" action="/courses">
-    <label>
-      Level: <input type="text" name="level" value="{{filters.level}}" placeholder="beginner, intermediate, or advanced" />
-    </label>
+  <form method="get" action="/courses" class="filter-form">
+    <div class="filter-group">
+      <label for="level">
+        Level:
+        <select id="level" name="level">
+          <option value="">All Levels</option>
+          <option value="beginner" {{#filters.level_beginner}}selected{{/filters.level_beginner}}>Beginner</option>
+          <option value="intermediate" {{#filters.level_intermediate}}selected{{/filters.level_intermediate}}>Intermediate</option>
+          <option value="advanced" {{#filters.level_advanced}}selected{{/filters.level_advanced}}>Advanced</option>
+        </select>
+      </label>
 
-    <label>
-      Type: <input type="text" name="type" value="{{filters.type}}" placeholder="WEEKLY_BLOCK or WEEKEND_WORKSHOP" />
-    </label>
+      <label for="type">
+        Type:
+        <select id="type" name="type">
+          <option value="">All Types</option>
+          <option value="WEEKLY_BLOCK" {{#filters.type_weekly}}selected{{/filters.type_weekly}}>Weekly Block</option>
+          <option value="WEEKEND_WORKSHOP" {{#filters.type_workshop}}selected{{/filters.type_workshop}}>Weekend Workshop</option>
+        </select>
+      </label>
 
-    <label>
-      Drop-in: <input type="text" name="dropin" value="{{filters.dropin}}" placeholder="yes or no" />
-    </label>
+      <label for="dropin">
+        Drop-in:
+        <select id="dropin" name="dropin">
+          <option value="">Any</option>
+          <option value="yes" {{#filters.dropin_yes}}selected{{/filters.dropin_yes}}>Yes</option>
+          <option value="no" {{#filters.dropin_no}}selected{{/filters.dropin_no}}>No</option>
+        </select>
+      </label>
 
-    <label>
-      Search
-      <input type="search" name="q" value="{{filters.q}}" placeholder="Title or description" />
-    </label>
+      <label for="q">
+        Search:
+        <input type="search" id="q" name="q" value="{{filters.q}}" placeholder="Title or description" />
+      </label>
+    </div>
 
-    <button class="btn" type="submit">Apply Filters</button>
-    <a href="/courses" class="btn">Reset</a>
+    <div class="filter-actions">
+      <button class="btn primary" type="submit">Apply Filters</button>
+      <a href="/courses" class="btn secondary">Reset</a>
+    </div>
   </form>
 </section>
 

@@ -42,6 +42,13 @@ app.use("/static", express.static(path.join(__dirname, "public")));
 // Auth middleware - attach current user to request
 app.use(attachUser);
 
+// Global view locals
+app.use((req, res, next) => {
+  res.locals.user = req.user;
+  res.locals.isOrganizer = req.user?.role === "organizer";
+  next();
+});
+
 // Health
 app.get("/health", (req, res) => res.json({ ok: true }));
 
