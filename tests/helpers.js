@@ -11,18 +11,12 @@ import { CourseModel } from "../models/courseModel.js";
 import { SessionModel } from "../models/sessionModel.js";
 
 export async function resetDb() {
-  await initDb();
+  // Simply clear all data from in-memory databases
   await Promise.all([
     usersDb.remove({}, { multi: true }),
     coursesDb.remove({}, { multi: true }),
     sessionsDb.remove({}, { multi: true }),
     bookingsDb.remove({}, { multi: true }),
-  ]);
-  await Promise.all([
-    usersDb.persistence.compactDatafile(),
-    coursesDb.persistence.compactDatafile(),
-    sessionsDb.persistence.compactDatafile(),
-    bookingsDb.persistence.compactDatafile(),
   ]);
 }
 
