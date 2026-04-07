@@ -1,30 +1,45 @@
 
-<select name="level">
-  <option value="" {{^filters.level}}selected{{/filters.level}}>Any</option>
-  <option value="beginner" {{#filters}}{{#level}} {{#isBeginner}}selected{{/isBeginner}} {{/level}}{{/filters}}>Beginner</option>
-</select>
+{{> head}}
+{{> header}}
 
- <label>
+<section>
+  <h1>Find Courses</h1>
+  <form method="get" action="/courses">
+    <label>
+      Level: <input type="text" name="level" value="{{filters.level}}" placeholder="beginner, intermediate, or advanced" />
+    </label>
+
+    <label>
+      Type: <input type="text" name="type" value="{{filters.type}}" placeholder="WEEKLY_BLOCK or WEEKEND_WORKSHOP" />
+    </label>
+
+    <label>
+      Drop-in: <input type="text" name="dropin" value="{{filters.dropin}}" placeholder="yes or no" />
+    </label>
+
+    <label>
       Search
       <input type="search" name="q" value="{{filters.q}}" placeholder="Title or description" />
     </label>
 
-    <button class="btn" type="submit">Apply</button>
-    /coursesReset</a>
+    <button class="btn" type="submit">Apply Filters</button>
+    <a href="/courses" class="btn">Reset</a>
   </form>
 </section>
 
 <div class="cards">
   {{#courses}}
   <article class="card">
-    <h2>/courses/{{id}}{{title}}</a></h2>
+    <h2><a href="/courses/{{id}}">{{title}}</a></h2>
     <p class="muted">
       Level: {{level}} • Type: {{type}} {{#allowDropIn}}• Drop-in OK{{/allowDropIn}}
     </p>
     <p>{{description}}</p>
+    {{#price}}<p class="muted">Price: {{price}}</p>{{/price}}
+    {{#location}}<p class="muted">Location: {{location}}</p>{{/location}}
     <p class="muted">Dates: {{startDate}} – {{endDate}}</p>
     <p class="muted">Next session: {{nextSession}} • Sessions: {{sessionsCount}}</p>
-    <p>/courses/{{id}}View &amp; Book</a></p>
+    <p><a href="/courses/{{id}}">View &amp; Book</a></p>
   </article>
   {{/courses}}
 
@@ -32,15 +47,17 @@
     <p>No courses match your filters.</p>
   {{/courses}}
 </div>
-<!-- 
+
 <nav class="pagination">
   {{#pagination.hasPrev}}
-    {{pagination.prevLink}}← Previous</a>
+    <a href="{{pagination.prevLink}}">← Previous</a>
   {{/pagination.hasPrev}}
 
   <span class="muted">Page {{pagination.page}} of {{pagination.totalPages}}</span>
 
   {{#pagination.hasNext}}
-    {{pagination.nextLink}}Next →</a>
+    <a href="{{pagination.nextLink}}">Next →</a>
   {{/pagination.hasNext}}
-</nav> -->
+</nav>
+
+{{> footer}}

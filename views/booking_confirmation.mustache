@@ -2,16 +2,37 @@
 {{> head}}
 {{> header}}
 
-<h1>Booking Confirmation</h1>
-<p>Your booking has been created.</p>
+<h1>{{#isCancelled}}Booking Cancelled{{/isCancelled}}{{^isCancelled}}Booking Confirmation{{/isCancelled}}</h1>
+
+{{#isCancelled}}
+<div style="padding: 1em; background: #d4edda; border-radius: 4px; margin-bottom: 1em;">
+  <p><strong>Your booking has been cancelled.</strong></p>
+  <p>Your spot has been released for other students. If you change your mind, you can always book again.</p>
+</div>
+{{/isCancelled}}
+
+{{^isCancelled}}
+<div style="padding: 1em; background: #d1ecf1; border-radius: 4px; margin-bottom: 1em;">
+  <p><strong>Your booking has been confirmed!</strong></p>
+  <p>Check your email for confirmation details. See you at the class!</p>
+</div>
+{{/isCancelled}}
 
 <dl class="kv">
-  <dt>ID</dt><dd>{{booking.id}}</dd>
-  <dt>Type</dt><dd>{{booking.type}}</dd>
-  <dt>Status</dt><dd>{{booking.status}}</dd>
+  <dt>Booking ID</dt><dd>{{booking.id}}</dd>
+  <dt>Course/Session Type</dt><dd>{{booking.type}}</dd>
+  <dt>Status</dt><dd><strong>{{booking.status}}</strong></dd>
   <dt>Created</dt><dd>{{booking.createdAt}}</dd>
+  {{#booking.message}}
+  <dt>Note</dt><dd>{{booking.message}}</dd>
+  {{/booking.message}}
 </dl>
 
-<p><a class="btn" href></p>
+<div style="margin-top: 2em;">
+  <a href="/" class="btn">Back to Home</a>
+  {{^isCancelled}}
+  <a href="/bookings/{{booking.id}}/details" class="btn">View Booking Details</a>
+  {{/isCancelled}}
+</div>
 
-{{>
+{{> footer}}

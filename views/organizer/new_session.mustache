@@ -1,0 +1,52 @@
+{{> head}}
+{{> header}}
+
+<article>
+  <h1>Add Session to {{course.title}}</h1>
+
+  {{#error}}
+  <div class="error-message">
+    <p>{{error}}</p>
+  </div>
+  {{/error}}
+
+  <form method="post" action="/organizer/courses/{{course.id}}/sessions">
+    <fieldset>
+      <legend>Session Details</legend>
+
+      <label for="startDateTime">Start Date & Time: *</label>
+      <input
+        type="datetime-local"
+        id="startDateTime"
+        name="startDateTime"
+        required
+        value="{{formData.startDateTime}}"
+      />
+
+      <label for="endDateTime">End Date & Time: *</label>
+      <input
+        type="datetime-local"
+        id="endDateTime"
+        name="endDateTime"
+        required
+        value="{{formData.endDateTime}}"
+      />
+
+      <label for="capacity">Capacity (number of students): *</label>
+      <input
+        type="number"
+        id="capacity"
+        name="capacity"
+        required
+        min="1"
+        value="{{formData.capacity}}"
+        placeholder="e.g., 20"
+      />
+    </fieldset>
+
+    <button type="submit" class="btn primary">Create Session</button>
+    <a href="/organizer/courses/{{course.id}}" class="btn">Cancel</a>
+  </form>
+</article>
+
+{{> footer}}

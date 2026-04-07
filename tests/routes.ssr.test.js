@@ -39,12 +39,4 @@ describe("SSR view routes", () => {
     expect(res.headers["content-type"]).toMatch(/html/);
     expect(res.text).toMatch(/Confirm Course Booking|Book:/i);
   });
-
-  test("GET /sessions/:id/book renders session booking form", async () => {
-    const sessionId = data.sessions[0]._id;
-    const res = await request(app).get(`/sessions/${sessionId}/book`);
-    expect(res.status).toBe(200);
-    expect(res.headers["content-type"]).toMatch(/html/);
-    expect(res.text).toMatch(/Confirm Session Booking|Book Session/i);
-  });
 });

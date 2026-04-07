@@ -8,8 +8,8 @@ describe("Edge cases", () => {
     await resetDb();
   });
 
-  test("GET /courses/:id with bad id returns 404 JSON", async () => {
-    const res = await request(app).get("/courses/does-not-exist");
+  test("GET /api/courses/:id with bad id returns 404 JSON", async () => {
+    const res = await request(app).get("/api/courses/does-not-exist");
     expect(res.status).toBe(404);
     expect(res.headers["content-type"]).toMatch(/json|html|text/); // depends on controller style
   });

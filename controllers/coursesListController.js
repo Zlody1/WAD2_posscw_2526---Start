@@ -91,6 +91,8 @@ export const coursesListPage = async (req, res, next) => {
           nextSession: first ? fmtDateTime(first.startDateTime) : "TBA",
           sessionsCount: sessions.length,
           description: c.description,
+          price: c.price,
+          location: c.location,
         };
       })
     );
@@ -109,6 +111,7 @@ export const coursesListPage = async (req, res, next) => {
 
     res.render("courses", {
       title: "Courses",
+      year: new Date().getFullYear(),
       filters: {
         level,
         type,

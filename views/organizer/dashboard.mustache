@@ -1,0 +1,53 @@
+{{> head}}
+{{> header}}
+
+<article>
+  <h1>Organizer Dashboard</h1>
+  <p>Welcome, {{organizer.email}}!</p>
+  
+  <section>
+    <h2>Manage Courses</h2>
+    <a href="/organizer/courses/new" class="btn primary">Create New Course</a>
+  </section>
+
+  {{#courses}}
+  {{#@first}}
+  <section>
+    <h2>All Courses</h2>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Level</th>
+          <th>Type</th>
+          <th>Dates</th>
+          <th>Sessions</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+  {{/@first}}
+        <tr>
+          <td><strong>{{title}}</strong></td>
+          <td>{{level}}</td>
+          <td>{{type}}</td>
+          <td>{{startDate}} – {{endDate}}</td>
+          <td>{{sessionsCount}}</td>
+          <td>
+            <a href="/organizer/courses/{{id}}" class="btn">View</a>
+            <!-- Edit/Delete options can be added here -->
+          </td>
+        </tr>
+  {{#@last}}
+      </tbody>
+    </table>
+  </section>
+  {{/@last}}
+  {{/courses}}
+
+  {{^courses}}
+  <p>No courses yet. <a href="/organizer/courses/new">Create one now</a>.</p>
+  {{/courses}}
+</article>
+
+{{> footer}}

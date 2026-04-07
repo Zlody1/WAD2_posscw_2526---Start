@@ -1,0 +1,45 @@
+{{> head}}
+{{> header}}
+
+<h1>Booking Details</h1>
+
+{{#booking}}
+<dl class="kv">
+  <dt>Booking ID</dt><dd>{{id}}</dd>
+  <dt>Course</dt><dd>{{courseName}}</dd>
+  <dt>Booking Type</dt><dd>{{type}}</dd>
+  <dt>Status</dt><dd><strong>{{status}}</strong></dd>
+  <dt>Created</dt><dd>{{createdAt}}</dd>
+  {{#sessions}}
+  <dt>Sessions</dt>
+  <dd>
+    <ul>
+      {{#sessions}}
+      <li>{{.}}</li>
+      {{/sessions}}
+    </ul>
+  </dd>
+  {{/sessions}}
+</dl>
+
+{{#canCancel}}
+<div style="margin-top: 2em; padding: 1em; background: #fff3cd; border-radius: 4px;">
+  <p><strong>Want to cancel this booking?</strong></p>
+  <p>If you cancel, your spot will be released for other students.</p>
+  <form method="post" action="/bookings/{{id}}/cancel" style="display: inline;">
+    <button class="btn danger" type="submit" onclick="return confirm('Are you sure you want to cancel this booking?');">Cancel Booking</button>
+  </form>
+</div>
+{{/canCancel}}
+
+{{^canCancel}}
+<div style="margin-top: 2em; padding: 1em; background: #d4edda; border-radius: 4px;">
+  <p>This booking has been cancelled and cannot be undone.</p>
+</div>
+{{/canCancel}}
+
+{{/booking}}
+
+<p><a href="/">Back to Home</a></p>
+
+{{> footer}}

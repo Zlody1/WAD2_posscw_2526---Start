@@ -74,11 +74,13 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 // import authRoutes from './routes/auth.js';
+import authRoutes from "./routes/auth.js";
+import organizerRoutes from "./routes/organizer.js";
 import courseRoutes from "./routes/courses.js";
 import sessionRoutes from "./routes/sessions.js";
 import bookingRoutes from "./routes/bookings.js";
 import viewRoutes from "./routes/views.js";
-import { attachDemoUser } from "./middlewares/demoUser.js";
+import { attachUser } from "./middlewares/auth.js";
 import { initDb } from "./models/_db.js";
 
 dotenv.config();
@@ -104,17 +106,23 @@ app.use(cookieParser());
 // Static
 app.use("/static", express.static(path.join(__dirname, "public")));
 
-// Demo user
-app.use(attachDemoUser);
+// Auth middleware - attach current user to request
+app.use(attachUser);
 
 // Health
 app.get("/health", (req, res) => res.json({ ok: true }));
 
+// Auth routes
+app.use("/", authRoutes);
+
 // JSON API routes
 // app.use('/auth', authRoutes);
-app.use("/courses", courseRoutes);
-app.use("/sessions", sessionRoutes);
-app.use("/bookings", bookingRoutes);
+app.use("/api/courses", courseRoutes);
+app.use("/api/sessions", sessionRoutes);
+app.use("/api/bookings", bookingRoutes);
+
+// Organizer routes
+app.use("/organizer", organizerRoutes);
 
 // SSR view routes
 app.use("/", viewRoutes);

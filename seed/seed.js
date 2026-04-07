@@ -30,15 +30,29 @@ async function wipeAll() {
 }
 
 async function ensureDemoStudent() {
-  let student = await UserModel.findByEmail("fiona@student.local");
+  let student = await UserModel.findByEmail("student@example.com");
   if (!student) {
     student = await UserModel.create({
-      name: "Fiona",
-      email: "fiona@student.local",
+      name: "Demo Student",
+      email: "student@example.com",
       role: "student",
+      password: "password123" // In production, this would be hashed
     });
   }
   return student;
+}
+
+async function ensureOrganizer() {
+  let organizer = await UserModel.findByEmail("organizer@yoga.local");
+  if (!organizer) {
+    organizer = await UserModel.create({
+      name: "Yoga Organizer",
+      email: "organizer@yoga.local",
+      role: "organizer",
+      password: "admin123" // In production, this would be hashed
+    });
+  }
+  return organizer;
 }
 
 async function createWeekendWorkshop() {
@@ -57,6 +71,8 @@ async function createWeekendWorkshop() {
     instructorId: instructor._id,
     sessionIds: [],
     description: "Two days of breath, posture alignment, and meditation.",
+    price: 120,
+    location: "Studio A, 123 Wellness Street, City Center",
   });
 
   const base = new Date("2026-01-10T09:00:00"); // Sat 9am
@@ -95,6 +111,8 @@ async function createWeeklyBlock() {
     instructorId: instructor._id,
     sessionIds: [],
     description: "Progressive sequences building strength and flexibility.",
+    price: 240,
+    location: "Studio B, 456 Harmony Avenue, Wellness District",
   });
 
   const first = new Date("2026-02-02T18:30:00"); // Monday 6:30pm
@@ -143,6 +161,9 @@ async function run() {
 
   console.log("Creating demo student…");
   const student = await ensureDemoStudent();
+
+  console.log("Creating organizer…");
+  const organizer = await ensureOrganizer();
 
   console.log("Creating weekend workshop…");
   const w = await createWeekendWorkshop();

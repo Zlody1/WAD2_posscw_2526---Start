@@ -1,0 +1,51 @@
+{{> head}}
+{{> header}}
+
+<article class="login-container">
+  <h1>Login</h1>
+  
+  {{#error}}
+  <div class="error-message">
+    <p>{{error}}</p>
+  </div>
+  {{/error}}
+
+  <form method="post" action="/login">
+    <fieldset>
+      <legend>Sign in to your account</legend>
+      
+      <label for="email">Email:</label>
+      <input
+        type="email"
+        id="email"
+        name="email"
+        required
+        placeholder="your@email.com"
+      />
+      
+      <label for="password">Password:</label>
+      <input
+        type="password"
+        id="password"
+        name="password"
+        required
+        placeholder="Enter your password"
+      />
+      
+      <button type="submit" class="btn primary">Login</button>
+    </fieldset>
+  </form>
+
+  <p class="muted">
+    Demo organizer: <br />
+    Email: <code>organizer@yogastudio.com</code><br />
+    Password: <code>password</code>
+  </p>
+  <p class="muted">
+    Demo student: <br />
+    Email: <code>demo@student.com</code><br />
+    Password: <code>password</code>
+  </p>
+</article>
+
+{{> footer}}

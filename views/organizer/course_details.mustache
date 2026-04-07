@@ -1,0 +1,60 @@
+{{> head}}
+{{> header}}
+
+<article>
+  <h1>{{course.title}}</h1>
+  
+  <p class="muted">
+    Level: {{course.level}} • Type: {{course.type}}
+    {{#course.allowDropIn}}• Drop-in available{{/course.allowDropIn}}
+  </p>
+
+  <p>{{course.description}}</p>
+
+  {{#course.price}}<p class="muted">Price: {{course.price}}</p>{{/course.price}}
+  {{#course.location}}<p class="muted">Location: {{course.location}}</p>{{/course.location}}
+  <p class="muted">Dates: {{course.startDate}} – {{course.endDate}}</p>
+
+  <section>
+    <h2>Sessions ({{sessionsCount}})</h2>
+    <p>
+      <a href="/organizer/courses/{{course.id}}/sessions/new" class="btn">Add Session</a>
+    </p>
+    
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Start</th>
+          <th>End</th>
+          <th>Capacity</th>
+          <th>Booked</th>
+          <th>Remaining</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#sessions}}
+        <tr>
+          <td>{{start}}</td>
+          <td>{{end}}</td>
+          <td>{{capacity}}</td>
+          <td>{{booked}}</td>
+          <td>{{remaining}}</td>
+        </tr>
+        {{/sessions}}
+        {{^sessions}}
+        <tr>
+          <td colspan="5" class="muted">No sessions yet. <a href="/organizer/courses/{{course.id}}/sessions/new">Add the first session</a>.</td>
+        </tr>
+        {{/sessions}}
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Actions</h2>
+    <a href="/organizer/dashboard" class="btn">Back to Dashboard</a>
+    <!-- Edit, Delete options can be added here -->
+  </section>
+</article>
+
+{{> footer}}
