@@ -26,11 +26,9 @@ export const bookSession = async (req, res) => {
     res.status(201).json({ booking });
   } catch (err) {
     console.error(err);
-    let status = 500;
-    if (err.code === "DROPIN_NOT_ALLOWED" || err.code === "ALREADY_BOOKED" || err.code === "ALREADY_ENROLLED") {
-      status = 400;
-    }
-    res.status(status).json({ error: err.message });
+    const clientCodes = ["DROPIN_NOT_ALLOWED", "ALREADY_BOOKED", "ALREADY_ENROLLED"];
+    const isClientError = clientCodes.includes(err.code) || /not found/i.test(err.message);
+    res.status(isClientError ? 400 : 500).json({ error: err.message });
   }
 };
 

@@ -99,9 +99,9 @@ describe("JSON API routes", () => {
       .send({
         sessionId: data.sessions[0]._id,
       });
-    // Should fail because student already booked the course containing this session
+    // Should fail because student already has a booking covering this session
     expect(res.status).toBe(400);
-    expect(res.body.error).toContain("already enrolled");
+    expect(res.body.error).toMatch(/already booked|already enrolled/i);
   });
 
   test("DELETE /api/bookings/:id cancels a booking", async () => {

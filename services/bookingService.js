@@ -66,13 +66,13 @@ export async function bookSessionForUser(userId, sessionId) {
   const session = await SessionModel.findById(sessionId);
   if (!session) throw new Error("Session not found");
 
-  // Check if user already has a booking for this specific session
+  // Check if user already has a booking for this specific session (any type)
   const existingBookings = await BookingModel.listByUser(userId);
-  const hasSessionBooking = existingBookings.some(b =>
-    b.type === "SESSION" && b.sessionIds.includes(sessionId) && b.status !== "CANCELLED"
+  const hasBookingForSession = existingBookings.some(b =>
+    b.sessionIds.includes(sessionId) && b.status !== "CANCELLED"
   );
 
-  if (hasSessionBooking) {
+  if (hasBookingForSession) {
     const err = new Error("You are already booked for this session");
     err.code = "ALREADY_BOOKED";
     throw err;
@@ -97,11 +97,18 @@ export async function bookSessionForUser(userId, sessionId) {
     await SessionModel.incrementBookedCount(session._id, 1);
   }
 
-  return BookingModel.create({
+  const bookingData = {
     userId,
     courseId: session.courseId || null,
     type: "SESSION",
     sessionIds: [session._id],
     status,
-  });
+  };
+
+  // Validation to prevent incorrect booking creation
+  if (bookingData.type !== "SESSION" || bookingData.sessionIds.length !== 1) {
+    throw new Error("Invalid session booking data");
+  }
+
+  return BookingModel.create(bookingData);
 }
